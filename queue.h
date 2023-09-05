@@ -32,64 +32,86 @@ typedef struct queue_t
 
 /**
  * @brief Create a queue object, initializes size of queue as 0.
- *
- * @param capacity number of elements in queue
- * @return struct Queue* pointer to queue object
+ * 
+ * @param[in,out] p_queue  Pointer to queue object
+ * @param[in]     capacity Number of elements in queue
+ * 
+ * @return 0 on success,
+ * @return -EINVAL if buffer_size is 0,
+ * @return -ENOMEM if memory allocation failed
  */
 int queue_create(queue_t ** p_queue, uint16_t capacity);
 
 /**
- * @brief Queue is full when size becomes equal to the capacity.
+ * @brief Checks if the queue is full
  *
- * @param queue pointer to queue object
+ * @param[in] p_queue Pointer to queue object
+ * 
  * @return true if queue is full
  */
-bool queue_is_full(queue_t * p_queue);
+bool queue_is_full(const queue_t * p_queue);
 
 /**
- * @brief Queue is empty when size is 0.
+ * @brief Checks if the queue is empty
  *
- * @param queue pointer to queue object
+ * @param[in] p_queue Pointer to queue object
+ * 
  * @return true if queue is empty
  */
-bool queue_is_empty(queue_t * p_queue);
+bool queue_is_empty(const queue_t * p_queue);
 
 /**
  * @brief Function to add an item to the queue. It changes rear and size.
  *
- * @param queue pointer to queue object
- * @param item item to be added
+ * @param[in,out] p_queue Pointer to queue object
+ * @param[in]     item    Item to be enqueued
+ * 
+ * @return 0 on success,
+ * @return -EINVAL if queue is full
+ * @return -ENOMEM if queue has not been initialized
  */
 int queue_enqueue(queue_t * p_queue, uint16_t item);
 
 /**
  * @brief Function to remove an item from queue. It changes front and size.
  *
- * @param queue pointer to queue object
- * @return uint16_t item removed from queue
+ * @param[in,out] p_queue Pointer to queue object
+ * @param[out]    p_item  Address for item to be dequeued into
+ * 
+ * @return 0 on success,
+ * @return -EINVAL if queue is empty
+ * @return -ENOMEM if queue has not been initialized
  */
 int queue_dequeue(queue_t * p_queue, uint16_t * p_item);
 
 /**
  * @brief Function to get front of queue
  *
- * @param queue pointer to queue object
- * @return uint16_t front of queue
+ * @param[in]  p_queue Pointer to queue object
+ * @param[out] p_item  Address for front element to be placed into
+ * 
+ * @return 0 on success,
+ * @return -EINVAL if queue is empty
+ * @return -ENOMEM if queue has not been initialized
  */
-int queue_get_front(queue_t * p_queue, uint16_t * p_item);
+int queue_get_front(const queue_t * p_queue, uint16_t * p_item);
 
 /**
  * @brief Function to get rear of queue
  *
- * @param queue pointer to queue object
- * @return uint16_t rear of queue
+ * @param[in]  p_queue Pointer to queue object
+ * @param[out] p_item  Address for rear element to be placed into
+ * 
+ * @return 0 on success,
+ * @return -EINVAL if queue is empty
+ * @return -ENOMEM if queue has not been initialized
  */
-int queue_get_rear(queue_t * p_queue, uint16_t * p_item);
+int queue_get_rear(const queue_t * p_queue, uint16_t * p_item);
 
 /**
- * @brief prints the queue to the console.
+ * @brief Prints the queue to the console.
  * 
- * @param queue pointer to queue object
+ * @param p_queue pointer to queue object
  */
 void queue_print(queue_t * p_queue);
 
