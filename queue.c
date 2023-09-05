@@ -1,5 +1,5 @@
 /**
- * @file queue.h
+ * @file queue.c
  * @author Usman Mehmood (usmanmehmood55@gmail.com)
  * @brief Library for creating and manipulating queues.
  * 
@@ -14,25 +14,7 @@
  * 
  */
 
-#ifndef _queue_h_
-#define _queue_h_
-
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-
-/**
- * @brief queue data structure containing a pointer to the data,
- * the front and the back of the queue, and the size of the queue.
- */
-struct Queue
-{
-    uint16_t front, rear, size;
-    uint16_t capacity;
-    uint16_t *elements;
-};
+#include "queue.h"
 
 /**
  * @brief Create a queue object, initializes size of queue as 0.
@@ -176,5 +158,3 @@ void print_queue(struct Queue *queue)
     }
     printf("\n");
 }
-
-#endif // _queue_h_
