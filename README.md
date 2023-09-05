@@ -4,7 +4,7 @@ An implementation of a queue in C. Most of the code is based on implementation
 found in [this article](https://www.geeksforgeeks.org/queue-set-1introduction-and-array-implementation/).
 
 [![Build and Test](https://github.com/usmanmehmood55/queue/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/usmanmehmood55/queue/actions/workflows/build_and_test.yml)
-[![codecov](https://codecov.io/github/usmanmehmood55/queue/graph/badge.svg)](https://codecov.io/github/usmanmehmood55/queue) 
+[![codecov](https://codecov.io/gh/usmanmehmood55/queue/graph/badge.svg?token=XK0MXKCR5N)](https://codecov.io/gh/usmanmehmood55/queue)
 
 ## Usage
 The queue is implemented as a structure with the front, rear, size, and an array.

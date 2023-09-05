@@ -1,18 +1,19 @@
 /**
- * @file queue.c
- * @author Usman Mehmood (usmanmehmood55@gmail.com)
- * @brief Library for creating and manipulating queues.
- * 
- * ? Source code taken from https://www.geeksforgeeks.org/queue-data-structure/
- * * Added functionality to push and print the queue.
- * TODO: Add functionality to pop the queue.
+ * @file    queue.c
+ * @author  Usman Mehmood (usmanmehmood55@gmail.com)
+ * @brief   Library for creating and manipulating queues.
  * 
  * @version 0.1
- * @date 2022-03-18
+ * @date    2022-03-18
  * 
  * @copyright Copyright (c) 2022
  * 
  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include "queue.h"
 
@@ -20,22 +21,37 @@
  * @brief Create a queue object, initializes size of queue as 0.
  *
  * @param capacity number of elements in queue
- * @return struct Queue* pointer to queue object
+ * @return queue_t* pointer to queue object
  */
-struct Queue *create_queue(uint16_t capacity)
+int queue_create(queue_t ** p_queue, uint16_t capacity)
 {
-    struct Queue *queue = (struct Queue *)malloc(sizeof(struct Queue));
-    queue->capacity = capacity;
-    queue->front = queue->size = 0;
-    queue->rear = capacity - 1;
-    queue->elements = (uint16_t *)malloc(queue->capacity * sizeof(uint16_t));
-
-    for (int i = 0; i < queue->capacity; i++)
+    if (capacity == 0U)
     {
-        queue->elements[i] = 0;
+        return -EINVAL;
     }
 
-    return queue;
+    (* p_queue) = (queue_t *)malloc(sizeof(queue_t));
+    if((* p_queue) == NULL)
+    {
+        return -ENOMEM;
+    }
+
+    (* p_queue)->elements = NULL;
+    (* p_queue)->capacity = capacity;
+    (* p_queue)->front    = 0U;
+    (* p_queue)->size     = 0U;
+    (* p_queue)->rear     = capacity - 1U;
+
+    (* p_queue)->elements = (uint16_t *)malloc((* p_queue)->capacity * sizeof(uint16_t));
+    if((* p_queue)->elements == NULL)
+    {
+        free((* p_queue));
+        return -ENOMEM;
+    }
+
+    (void)memset((* p_queue)->elements, 0, capacity * sizeof(uint16_t));
+
+    return 0;
 }
 
 /**
@@ -44,9 +60,9 @@ struct Queue *create_queue(uint16_t capacity)
  * @param queue pointer to queue object
  * @return true if queue is full
  */
-bool is_full(struct Queue *queue)
+bool queue_is_full(queue_t * p_queue)
 {
-    return (queue->size == queue->capacity);
+    return (p_queue != NULL) ? (p_queue->size == p_queue->capacity) : false;
 }
 
 /**
@@ -55,9 +71,9 @@ bool is_full(struct Queue *queue)
  * @param queue pointer to queue object
  * @return true if queue is empty
  */
-bool is_empty(struct Queue *queue)
+bool queue_is_empty(queue_t * p_queue)
 {
-    return (queue->size == 0);
+    return (p_queue != NULL) ? (p_queue->size == 0U) : true;
 }
 
 /**
@@ -66,38 +82,26 @@ bool is_empty(struct Queue *queue)
  * @param queue pointer to queue object
  * @param item item to be added
  */
-void enqueue(struct Queue *queue, uint16_t item)
+int queue_enqueue(queue_t * p_queue, uint16_t item)
 {
-    if (is_full(queue))
-        return;
-    
-    queue->rear = (queue->rear + 1) % queue->capacity;
-    queue->elements[queue->rear] = item;
-    queue->size = queue->size + 1;
-}
+    int err = -EINVAL;
 
-/**
- * @brief Function to push an item to the queue. It changes front and size.
- * 
- * @param queue pointer to queue object
- * @param item item to push into queue
- */
-void push(struct Queue *queue, uint16_t item)
-{
-    // If queue is full, its size cannot be increased.
-    if (!is_full(queue))
-        queue->size++;
+    if (p_queue != NULL)
+    {
+        if (queue_is_full(p_queue) == false)
+        {
+            p_queue->rear = (p_queue->rear + 1U) % p_queue->capacity;
+            p_queue->elements[p_queue->rear] = item;
+            p_queue->size++;
+            err = 0;
+        }
+    }
+    else
+    {
+        err = -ENOMEM;
+    }
 
-    // Move all elements from front to rear one position ahead.
-    for (int i = queue->capacity - 1; i > 0; i--)
-        queue->elements[i] = queue->elements[i - 1];
-
-    // Assign the new element at the front.
-    queue->elements[0] = item;
-
-    // Set front and rear.
-    queue->rear = item;
-    queue->front = queue->elements[queue->size];
+    return err;
 }
 
 /**
@@ -106,17 +110,26 @@ void push(struct Queue *queue, uint16_t item)
  * @param queue pointer to queue object
  * @return uint16_t item removed from queue
  */
-uint16_t dequeue(struct Queue *queue)
+int queue_dequeue(queue_t * p_queue, uint16_t * p_item)
 {
-    // Empty queue can't be dequeued.
-    if (is_empty(queue))
-        return 0;
+    int err = -EINVAL;
 
-    // Store the front item.
-    uint16_t item = queue->elements[queue->front];
-    queue->front = (queue->front + 1) % queue->capacity;
-    queue->size = queue->size - 1;
-    return item;
+    if (p_queue != NULL)
+    {
+        if (queue_is_empty(p_queue) == false)
+        {
+            * p_item = p_queue->elements[p_queue->front];
+            p_queue->front = (p_queue->front + 1U) % p_queue->capacity;
+            p_queue->size--;
+            err = 0;
+        }
+    }
+    else
+    {
+        err = -ENOMEM;
+    }
+
+    return err;
 }
 
 /**
@@ -125,11 +138,24 @@ uint16_t dequeue(struct Queue *queue)
  * @param queue pointer to queue object
  * @return uint16_t front of queue
  */
-uint16_t front(struct Queue *queue)
+int queue_get_front(queue_t * p_queue, uint16_t * p_item)
 {
-    if (is_empty(queue))
-        return 0;
-    return queue->elements[queue->front];
+    int err = -EINVAL;
+
+    if (p_queue != NULL)
+    {
+        if (queue_is_empty(p_queue) == false)
+        {
+            * p_item = p_queue->elements[p_queue->front];
+            err = 0;
+        }
+    }
+    else
+    {
+        err = -ENOMEM;
+    }
+
+    return err;
 }
 
 /**
@@ -138,11 +164,24 @@ uint16_t front(struct Queue *queue)
  * @param queue pointer to queue object
  * @return uint16_t rear of queue
  */
-uint16_t rear(struct Queue *queue)
+int queue_get_rear(queue_t * p_queue, uint16_t * p_item)
 {
-    if (is_empty(queue))
-        return 0;
-    return queue->elements[queue->rear];
+    int err = -EINVAL;
+
+    if (p_queue != NULL)
+    {
+        if (queue_is_empty(p_queue) == false)
+        {
+            * p_item = p_queue->elements[p_queue->rear];
+            err = 0;
+        }
+    }
+    else
+    {
+        err = -ENOMEM;
+    }
+
+    return err;
 }
 
 /**
@@ -150,11 +189,39 @@ uint16_t rear(struct Queue *queue)
  * 
  * @param queue pointer to queue object
  */
-void print_queue(struct Queue *queue)
+void queue_print(queue_t * p_queue)
 {
-    for (int i = 0; i < queue->capacity; i++)
+    if (p_queue != NULL)
     {
-        printf("%d\t", queue->elements[i]);
+        for (uint16_t i = 0U; i < p_queue->capacity; i++)
+        {
+            (void)printf("%d\t", p_queue->elements[i]);
+        }
+        (void)printf("\n");
     }
-    printf("\n");
+}
+
+/**
+ * @brief Destroys the queue, freeing its memory.
+ *
+ * @param[in,out] p_queue Pointer to the queue to destroy.
+ *
+ * @return 0 on success, or a negative error code on failure.
+ * @return -ENOMEM on uninitialized buffer
+ */
+int queue_destroy(queue_t * p_queue)
+{
+    if (p_queue == NULL)
+    {
+        return -ENOMEM;
+    }
+
+    free(p_queue->elements);
+    p_queue->elements = NULL;
+    p_queue->capacity = 0U;
+    p_queue->front    = 0U;
+    p_queue->rear     = 0U;
+    p_queue->size     = 0U;
+
+    return 0;
 }
