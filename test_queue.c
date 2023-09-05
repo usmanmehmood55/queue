@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "queue.h"
 
-void main()
+int main(void)
 {
     struct Queue *queue = create_queue(10);
     
@@ -10,4 +10,6 @@ void main()
         push(queue, i);
         print_queue(queue);
     }
+
+    return 0;
 }
