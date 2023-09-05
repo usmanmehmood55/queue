@@ -243,7 +243,6 @@ int queue_destroy(queue_t * p_queue)
         p_queue->front    = 0U;
         p_queue->rear     = 0U;
         p_queue->size     = 0U;
-        free(p_queue);
         err = 0;
     }
 
